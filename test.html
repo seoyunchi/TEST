@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>性别测试 - Gender Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>性别测试 - Stardew Valley 版</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -12,20 +12,36 @@
     html, body { width: 100%; height: 100%; overflow: hidden; }
     body {
       font-family: 'Press Start 2P', 'Courier New', monospace;
-      background: #0f0f23; color: #ffffff;
+      background: #d4e9f7;
+      color: #3d2b1f;
       display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; position: relative; image-rendering: pixelated;
+      min-height: 100vh; min-height: 100dvh;
+      position: relative; image-rendering: pixelated;
     }
+    /* Sky background with clouds */
     body::before {
       content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-      background-size: 32px 32px;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.5) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.4) 0%, transparent 35%),
+        radial-gradient(circle at 50% 60%, rgba(255,255,255,0.3) 0%, transparent 50%),
+        linear-gradient(180deg, #b8dff5 0%, #d4e9f7 40%, #e8f4e8 100%);
     }
+    /* Grass at bottom */
     body::after {
-      content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+      content: ''; position: fixed; bottom: 0; left: 0; right: 0; z-index: 0; pointer-events: none;
+      height: 18vh;
+      background:
+        repeating-linear-gradient(90deg,
+          #7ec850 0px, #7ec850 16px,
+          #6db840 16px, #6db840 32px);
+      box-shadow: 0 -4px 0 #5a9a30;
+    }
+    /* Grass tufts */
+    .grass-tuft {
+      position: fixed; bottom: 18vh; z-index: 0; pointer-events: none;
+      width: 8px; height: 12px; background: #6db840;
+      box-shadow: 2px -4px 0 #7ec850, -2px -2px 0 #5a9a30;
     }
 
     /* LANDING */
@@ -35,136 +51,428 @@
       text-align: center; padding: 2rem 1.5rem;
       opacity: 1; transform: scale(1);
       transition: opacity 0.5s ease, transform 0.5s ease;
-      width: 100%; max-width: 600px;
+      width: 100%; max-width: 520px;
     }
     #landing.is-hidden { opacity: 0; transform: scale(0.8); pointer-events: none; }
-    .main-title {
-      font-size: clamp(1.5rem, 6vw, 2.8rem); color: #ffffff;
-      text-shadow: 3px 3px 0 #4a4a6a, -1px -1px 0 #4a4a6a, 1px -1px 0 #4a4a6a, -1px 1px 0 #4a4a6a, 0 0 20px rgba(240,219,79,0.3);
-      margin-bottom: 0.75rem; line-height: 1.4;
-      animation: titlePulse 3s ease-in-out infinite;
-    }
-    @keyframes titlePulse { 0%,100% { text-shadow: 3px 3px 0 #4a4a6a, 0 0 20px rgba(240,219,79,0.3); } 50% { text-shadow: 3px 3px 0 #4a4a6a, 0 0 40px rgba(240,219,79,0.6); } }
-    .sub-title { font-size: clamp(0.7rem, 2.5vw, 1rem); color: #b0b0c8; text-shadow: 2px 2px 0 #3a3a5a; margin-bottom: 3rem; line-height: 1.6; }
 
-    /* MYSTERY BLOCK */
-    .mystery-block {
-      position: relative; display: inline-flex; align-items: center; justify-content: center;
-      width: 120px; height: 120px; background: #f0db4f; border: none; cursor: pointer;
-      font-family: 'Press Start 2P', 'Courier New', monospace; font-size: 2.5rem; color: #8b6914; text-shadow: 1px 1px 0 #fff3a0;
-      box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914, 2px 2px 0 0 rgba(255,255,255,0.3) inset, -2px -2px 0 0 rgba(0,0,0,0.15) inset, 8px 8px 0 0 rgba(0,0,0,0.4);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      animation: blockFloat 3s ease-in-out infinite;
-      user-select: none; -webkit-tap-highlight-color: transparent;
+    /* WOODEN PLAQUE */
+    .wooden-plaque {
+      background: #c49a6c;
+      border: 4px solid #8b6b4a;
+      box-shadow:
+        6px 6px 0 0 rgba(0,0,0,0.2),
+        inset 2px 2px 0 0 rgba(255,255,255,0.2),
+        inset -2px -2px 0 0 rgba(0,0,0,0.15);
+      padding: 2rem 1.5rem;
+      position: relative;
+      width: 100%;
     }
-    .mystery-block::before { content: ''; position: absolute; inset: -8px; background: transparent; box-shadow: 4px 0 0 0 #5a4510, -4px 0 0 0 #5a4510, 0 4px 0 0 #5a4510, 0 -4px 0 0 #5a4510; pointer-events: none; }
-    .mystery-block .block-icon { position: relative; z-index: 1; line-height: 1; }
-    .mystery-block .block-dots { position: absolute; inset: 0; pointer-events: none; }
-    .mystery-block .block-dots::before, .mystery-block .block-dots::after { content: ''; position: absolute; width: 8px; height: 8px; background: #c9a830; box-shadow: 1px 1px 0 0 #8b6914; }
-    .mystery-block .block-dots::before { top: 14px; left: 14px; }
-    .mystery-block .block-dots::after { bottom: 14px; right: 14px; }
-    @keyframes blockFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-    .mystery-block:hover { transform: translateY(-8px) scale(1.05); box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914, 2px 2px 0 0 rgba(255,255,255,0.4) inset, -2px -2px 0 0 rgba(0,0,0,0.15) inset, 8px 8px 0 0 rgba(0,0,0,0.4), 0 0 30px rgba(240,219,79,0.5); animation: blockBounce 0.4s ease infinite; }
-    @keyframes blockBounce { 0%,100% { transform: translateY(-8px) scale(1.05); } 50% { transform: translateY(-12px) scale(1.05); } }
-    .mystery-block:active { transform: translateY(4px) scale(0.95); box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914, 2px 2px 0 0 rgba(0,0,0,0.2) inset, -2px -2px 0 0 rgba(255,255,255,0.1) inset, 4px 4px 0 0 rgba(0,0,0,0.4); animation: none; }
-    .btn-label { margin-top: 1.5rem; font-size: 0.65rem; color: #8888aa; text-shadow: 1px 1px 0 #2a2a4a; letter-spacing: 0.15em; animation: labelBlink 2s step-end infinite; }
+    .wooden-plaque::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #6b4f35, -3px 0 0 0 #6b4f35,
+        0 3px 0 0 #6b4f35, 0 -3px 0 0 #6b4f35;
+      pointer-events: none;
+    }
+    /* Wood grain lines */
+    .wooden-plaque::after {
+      content: ''; position: absolute; inset: 8px; z-index: -1; pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg,
+          transparent 0px, transparent 20px,
+          rgba(139,107,74,0.15) 20px, rgba(139,107,74,0.15) 22px,
+          transparent 22px, transparent 40px);
+    }
+
+    .main-title {
+      font-size: clamp(1.4rem, 5vw, 2.2rem);
+      color: #fef6e4;
+      text-shadow:
+        3px 3px 0 #6b4f35,
+        -1px -1px 0 #6b4f35,
+        1px -1px 0 #6b4f35,
+        -1px 1px 0 #6b4f35,
+        0 0 20px rgba(255,215,0,0.3);
+      margin-bottom: 0.5rem; line-height: 1.4;
+      animation: titleGlow 3s ease-in-out infinite;
+    }
+    @keyframes titleGlow {
+      0%,100% { text-shadow: 3px 3px 0 #6b4f35, 0 0 20px rgba(255,215,0,0.3); }
+      50% { text-shadow: 3px 3px 0 #6b4f35, 0 0 40px rgba(255,215,0,0.6); }
+    }
+    .sub-title {
+      font-size: clamp(0.65rem, 2.5vw, 0.9rem);
+      color: #fef6e4;
+      text-shadow: 2px 2px 0 #6b4f35;
+      margin-bottom: 2rem; line-height: 1.6;
+    }
+
+    /* STARDEW START BUTTON - Junimo style */
+    .start-btn {
+      position: relative; display: inline-flex; align-items: center; justify-content: center;
+      width: 100px; height: 100px;
+      background: #f5d742; border: none; cursor: pointer;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: 2.2rem; color: #7a6214;
+      text-shadow: 1px 1px 0 #fff3a0;
+      box-shadow:
+        4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914,
+        0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914,
+        2px 2px 0 0 rgba(255,255,255,0.3) inset,
+        -2px -2px 0 0 rgba(0,0,0,0.15) inset,
+        6px 6px 0 0 rgba(0,0,0,0.25);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      animation: junimoBounce 2.5s ease-in-out infinite;
+      user-select: none; -webkit-tap-highlight-color: transparent;
+      border-radius: 8px;
+    }
+    .start-btn::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #5a4510, -3px 0 0 0 #5a4510,
+        0 3px 0 0 #5a4510, 0 -3px 0 0 #5a4510;
+      pointer-events: none;
+      border-radius: 12px;
+    }
+    .start-btn .btn-icon { position: relative; z-index: 1; line-height: 1; }
+    /* Little leaf on top like a Junimo */
+    .start-btn .btn-leaf {
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 12px; height: 10px; background: #6db840;
+      box-shadow: 1px 1px 0 0 #4a7a28;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      z-index: 2;
+    }
+    @keyframes junimoBounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .start-btn:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow:
+        4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914,
+        0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914,
+        2px 2px 0 0 rgba(255,255,255,0.4) inset,
+        -2px -2px 0 0 rgba(0,0,0,0.15) inset,
+        6px 6px 0 0 rgba(0,0,0,0.25),
+        0 0 30px rgba(245,215,66,0.5);
+      animation: junimoHover 0.4s ease infinite;
+    }
+    @keyframes junimoHover {
+      0%,100% { transform: translateY(-6px) scale(1.05); }
+      50% { transform: translateY(-10px) scale(1.05); }
+    }
+    .start-btn:active {
+      transform: translateY(4px) scale(0.95);
+      box-shadow:
+        4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914,
+        0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914,
+        2px 2px 0 0 rgba(0,0,0,0.2) inset,
+        -2px -2px 0 0 rgba(255,255,255,0.1) inset,
+        3px 3px 0 0 rgba(0,0,0,0.25);
+      animation: none;
+    }
+    .btn-label {
+      margin-top: 1.2rem;
+      font-size: clamp(0.5rem, 2vw, 0.65rem);
+      color: #5a7a4a;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+      letter-spacing: 0.1em;
+      animation: labelBlink 2s step-end infinite;
+    }
     @keyframes labelBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
     /* QUIZ MODAL */
-    #quiz-modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1.25rem; background: rgba(15,15,35,0.92); backdrop-filter: blur(4px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
+    #quiz-modal {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      background: rgba(60,40,20,0.85);
+      backdrop-filter: blur(3px);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
     #quiz-modal.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
-    .modal-box { position: relative; width: min(100%, 560px); padding: 2.5rem 2rem 2rem; background: #1a1a3e; border: 4px solid #f0db4f; box-shadow: 8px 8px 0 0 rgba(0,0,0,0.5), inset 2px 2px 0 0 rgba(255,255,255,0.08), inset -2px -2px 0 0 rgba(0,0,0,0.2); transform: scale(0.85) translateY(20px); transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease; opacity: 0; overflow: hidden; }
+
+    .modal-box {
+      position: relative;
+      width: min(100%, 520px);
+      padding: 2rem 1.5rem 1.5rem;
+      background: #c49a6c;
+      border: 4px solid #8b6b4a;
+      box-shadow:
+        8px 8px 0 0 rgba(0,0,0,0.25),
+        inset 2px 2px 0 0 rgba(255,255,255,0.2),
+        inset -2px -2px 0 0 rgba(0,0,0,0.15);
+      transform: scale(0.85) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
+      opacity: 0;
+    }
+    .modal-box::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #6b4f35, -3px 0 0 0 #6b4f35,
+        0 3px 0 0 #6b4f35, 0 -3px 0 0 #6b4f35;
+      pointer-events: none; z-index: 5;
+    }
     #quiz-modal.is-open .modal-box { transform: scale(1) translateY(0); opacity: 1; }
-    .modal-box::before { content: ''; position: absolute; inset: -8px; background: transparent; box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914; pointer-events: none; z-index: 5; }
-    .modal-close { position: absolute; top: 12px; right: 12px; z-index: 10; width: 36px; height: 36px; background: #3a3a5a; border: 3px solid #5a5a7a; color: #b0b0c8; font-family: 'Press Start 2P', monospace; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease, border-color 0.2s ease; box-shadow: 3px 3px 0 0 rgba(0,0,0,0.4); line-height: 1; }
-    .modal-close:hover { background: #5a5a7a; border-color: #f0db4f; color: #f0db4f; }
-    .modal-close:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 0 rgba(0,0,0,0.4); }
+
+    .modal-close {
+      position: absolute; top: 10px; right: 10px; z-index: 10;
+      width: 40px; height: 40px;
+      background: #a0784a; border: 3px solid #8b6b4a;
+      color: #fef6e4;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      box-shadow: 3px 3px 0 0 rgba(0,0,0,0.2);
+      line-height: 1;
+    }
+    .modal-close:hover { background: #8b6b4a; border-color: #f5d742; color: #f5d742; }
+    .modal-close:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 0 rgba(0,0,0,0.2); }
 
     /* QUESTION SLIDE */
     .question-slide { opacity: 0; transform: translateX(40px); transition: opacity 0.35s ease, transform 0.35s ease; }
     .question-slide.is-active { opacity: 1; transform: translateX(0); }
     .question-slide.is-exit-left { opacity: 0; transform: translateX(-40px); }
-    .modal-question-number { font-size: 0.55rem; color: #f0db4f; margin-bottom: 0.75rem; text-shadow: 1px 1px 0 #5a4510; }
-    .modal-question-text { font-size: clamp(0.6rem, 2vw, 0.8rem); line-height: 1.8; color: #e0e0f0; margin-bottom: 1.5rem; text-shadow: 1px 1px 0 #2a2a4a; min-height: 2.5em; }
 
-    /* OPTIONS */
-    .options-grid { display: flex; flex-direction: column; gap: 0.7rem; }
-    .option-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.85rem 1.1rem; background: #2a2a5a; border: 3px solid #4a4a7a; color: #c0c0e0; font-family: 'Press Start 2P', 'Courier New', monospace; font-size: clamp(0.45rem, 1.5vw, 0.6rem); cursor: pointer; text-align: left; transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease; box-shadow: 4px 4px 0 0 rgba(0,0,0,0.4); line-height: 1.4; position: relative; overflow: hidden; }
-    .option-btn:hover { background: #3a3a7a; border-color: #f0db4f; color: #ffffff; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 rgba(0,0,0,0.4); }
-    .option-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 0 rgba(0,0,0,0.4); }
-    .option-btn.is-disabled { pointer-events: none; opacity: 0.6; }
-    .option-letter { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: #4a4a7a; border: 2px solid #6a6a9a; color: #f0db4f; font-size: 0.65rem; flex-shrink: 0; box-shadow: 2px 2px 0 0 rgba(0,0,0,0.3); }
-    .option-btn:hover .option-letter { background: #f0db4f; border-color: #8b6914; color: #5a4510; }
+    .modal-question-number {
+      font-size: clamp(0.5rem, 2vw, 0.6rem);
+      color: #f5d742;
+      margin-bottom: 0.75rem;
+      text-shadow: 1px 1px 0 #6b4f35;
+    }
+    .modal-question-text {
+      font-size: clamp(0.65rem, 2.5vw, 0.85rem);
+      line-height: 1.8;
+      color: #3d2b1f;
+      margin-bottom: 1.25rem;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+      min-height: 2.5em;
+    }
 
-    /* PIXEL EXPLOSION */
-    .pixel-particle { position: fixed; z-index: 200; pointer-events: none; width: 8px; height: 8px; image-rendering: pixelated; animation: particleFly 0.7s ease-out forwards; }
-    @keyframes particleFly { 0% { opacity: 1; transform: translate(0,0) scale(1); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); } }
+    /* OPTIONS - Mobile friendly large touch targets */
+    .options-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+    .option-btn {
+      display: flex; align-items: center; gap: 0.75rem;
+      width: 100%;
+      min-height: 52px;
+      padding: 0.75rem 1rem;
+      background: #f5e8d0;
+      border: 3px solid #b8956a;
+      color: #3d2b1f;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: clamp(0.5rem, 2vw, 0.65rem);
+      cursor: pointer; text-align: left;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+      box-shadow: 4px 4px 0 0 rgba(0,0,0,0.15);
+      line-height: 1.5;
+      position: relative; overflow: hidden;
+    }
+    .option-btn:hover { background: #fef6e4; border-color: #f5d742; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 rgba(0,0,0,0.15); }
+    .option-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 0 rgba(0,0,0,0.15); }
+    .option-btn.is-disabled { pointer-events: none; opacity: 0.5; }
+
+    .option-letter {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; min-width: 34px;
+      background: #b8956a;
+      border: 2px solid #8b6b4a;
+      color: #fef6e4;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      box-shadow: 2px 2px 0 0 rgba(0,0,0,0.15);
+    }
+    .option-btn:hover .option-letter { background: #f5d742; border-color: #8b6914; color: #5a4510; }
+
+    /* PIXEL EXPLOSION - Stardew colors */
+    .pixel-particle {
+      position: fixed; z-index: 200; pointer-events: none;
+      width: 8px; height: 8px; image-rendering: pixelated;
+      animation: particleFly 0.7s ease-out forwards;
+    }
+    @keyframes particleFly {
+      0% { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+    }
 
     /* RESULT SCREEN */
-    #result-screen { position: fixed; inset: 0; z-index: 150; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; background: rgba(10,10,30,0.97); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.6s ease, visibility 0.6s ease; }
+    #result-screen {
+      position: fixed; inset: 0; z-index: 150;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 1rem;
+      background: rgba(60,40,20,0.95);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
     #result-screen.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
-    .result-box { width: min(100%, 520px); padding: 2.5rem 2rem 2rem; background: #1a1a3e; border: 4px solid #f0db4f; box-shadow: 8px 8px 0 0 rgba(0,0,0,0.5), 0 0 40px rgba(240,219,79,0.15); text-align: center; transform: scale(0.8); transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1); position: relative; }
-    .result-box::before { content: ''; position: absolute; inset: -8px; background: transparent; box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914; pointer-events: none; }
+
+    .result-box {
+      width: min(100%, 480px);
+      padding: 2rem 1.5rem 1.5rem;
+      background: #c49a6c;
+      border: 4px solid #f5d742;
+      box-shadow:
+        8px 8px 0 0 rgba(0,0,0,0.25),
+        0 0 40px rgba(245,215,66,0.2);
+      text-align: center;
+      transform: scale(0.8);
+      transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+    }
+    .result-box::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #6b4f35, -3px 0 0 0 #6b4f35,
+        0 3px 0 0 #6b4f35, 0 -3px 0 0 #6b4f35;
+      pointer-events: none;
+    }
     #result-screen.is-open .result-box { transform: scale(1); }
-    .result-badge { font-size: 0.5rem; color: #f0db4f; margin-bottom: 0.75rem; text-shadow: 1px 1px 0 #5a4510; letter-spacing: 0.2em; }
 
-    /* TREASURE BOX */
-    .treasure-box-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 1.5rem; cursor: pointer; }
-    .treasure-box { position: absolute; inset: 0; background: #f0db4f; box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914, 2px 2px 0 0 rgba(255,255,255,0.3) inset, -2px -2px 0 0 rgba(0,0,0,0.15) inset; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #8b6914; transition: transform 0.4s ease; z-index: 2; }
-    .treasure-box.is-open { transform: translateY(-30px) scale(1.1); box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914, 2px 2px 0 0 rgba(255,255,255,0.3) inset, -2px -2px 0 0 rgba(0,0,0,0.15) inset, 0 0 30px rgba(240,219,79,0.5); }
-    .treasure-lid { position: absolute; top: -30px; left: -4px; right: -4px; height: 34px; background: #e5c83a; box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 2px 2px 0 0 rgba(255,255,255,0.3) inset; transform-origin: bottom center; transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1); z-index: 3; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #8b6914; }
-    .treasure-lid.is-open { transform: rotateX(-120deg) translateY(-10px); }
-    .treasure-glow { position: absolute; inset: -20px; background: radial-gradient(circle, rgba(240,219,79,0.3), transparent 70%); opacity: 0; transition: opacity 0.8s ease; pointer-events: none; }
-    .treasure-glow.is-open { opacity: 1; animation: glowPulse 1.5s ease-in-out infinite; }
-    @keyframes glowPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+    /* GOLDEN PIXEL BANNER */
+    .result-banner {
+      display: inline-block;
+      padding: 0.6rem 1rem;
+      background: linear-gradient(135deg, #f5d742, #d4a017, #f5d742);
+      border: 3px solid #8b6914;
+      box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2);
+      font-size: clamp(0.5rem, 2.5vw, 0.7rem);
+      color: #3d2b1f;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+      animation: bannerGlow 2s ease-in-out infinite;
+    }
+    @keyframes bannerGlow {
+      0%,100% { box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2), 0 0 20px rgba(245,215,66,0.3); }
+      50% { box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2), 0 0 40px rgba(245,215,66,0.6); }
+    }
+    .result-banner .gender-text {
+      color: #5a2d0c;
+      font-size: clamp(0.7rem, 3vw, 1rem);
+      display: block;
+      margin-top: 0.3rem;
+    }
 
-    .result-title { font-size: clamp(0.8rem, 3vw, 1.2rem); color: #ffffff; text-shadow: 2px 2px 0 #4a4a6a; margin-bottom: 0.5rem; line-height: 1.5; }
-    .result-subtitle { font-size: clamp(0.5rem, 1.8vw, 0.7rem); color: #f0db4f; text-shadow: 1px 1px 0 #5a4510; margin-bottom: 1.5rem; }
-    .result-description { font-size: clamp(0.45rem, 1.5vw, 0.6rem); color: #b0b0c8; line-height: 1.8; margin-bottom: 1.5rem; text-shadow: 1px 1px 0 #2a2a4a; }
-    .result-stats { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1.5rem; }
-    .result-stat { text-align: center; }
-    .result-stat-value { font-size: 1.2rem; color: #f0db4f; text-shadow: 2px 2px 0 #5a4510; }
-    .result-stat-label { font-size: 0.4rem; color: #8888aa; margin-top: 0.3rem; }
-    .result-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 1.5rem; background: #f0db4f; border: 3px solid #8b6914; color: #5a4510; font-family: 'Press Start 2P', 'Courier New', monospace; font-size: 0.55rem; cursor: pointer; box-shadow: 4px 4px 0 0 rgba(0,0,0,0.4); transition: transform 0.15s ease, box-shadow 0.15s ease; }
-    .result-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 rgba(0,0,0,0.4); }
-    .result-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 0 rgba(0,0,0,0.4); }
+    .result-description {
+      font-size: clamp(0.5rem, 2vw, 0.65rem);
+      color: #3d2b1f;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .result-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      min-height: 48px;
+      padding: 0.75rem 1.5rem;
+      background: #f5d742;
+      border: 3px solid #8b6914;
+      color: #3d2b1f;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: clamp(0.5rem, 2vw, 0.6rem);
+      cursor: pointer;
+      box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .result-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 rgba(0,0,0,0.2); }
+    .result-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 0 rgba(0,0,0,0.2); }
 
     /* HUMOR POPUP */
-    #humor-popup { position: fixed; inset: 0; z-index: 250; display: flex; align-items: center; justify-content: center; padding: 1.25rem; background: rgba(0,0,0,0.85); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s ease; }
+    #humor-popup {
+      position: fixed; inset: 0; z-index: 250;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      background: rgba(40,25,10,0.9);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
     #humor-popup.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
-    .humor-box { width: min(100%, 480px); padding: 2rem 1.75rem; background: #1a1a3e; border: 4px solid #f0db4f; box-shadow: 8px 8px 0 0 rgba(0,0,0,0.5); text-align: center; transform: scale(0.8); transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); position: relative; }
-    .humor-box::before { content: ''; position: absolute; inset: -8px; background: transparent; box-shadow: 4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914, 0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914; pointer-events: none; }
+
+    .humor-box {
+      width: min(100%, 440px);
+      padding: 2rem 1.5rem;
+      background: #c49a6c;
+      border: 4px solid #8b6b4a;
+      box-shadow: 8px 8px 0 0 rgba(0,0,0,0.25);
+      text-align: center;
+      transform: scale(0.8);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+    }
+    .humor-box::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #6b4f35, -3px 0 0 0 #6b4f35,
+        0 3px 0 0 #6b4f35, 0 -3px 0 0 #6b4f35;
+      pointer-events: none;
+    }
     #humor-popup.is-open .humor-box { transform: scale(1); }
-    .humor-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-    .humor-text { font-size: clamp(0.5rem, 2vw, 0.7rem); line-height: 1.8; color: #e0e0f0; margin-bottom: 1.5rem; text-shadow: 1px 1px 0 #2a2a4a; }
-    .humor-btn { padding: 0.75rem 1.5rem; background: #f0db4f; border: 3px solid #8b6914; color: #5a4510; font-family: 'Press Start 2P', 'Courier New', monospace; font-size: 0.5rem; cursor: pointer; box-shadow: 4px 4px 0 0 rgba(0,0,0,0.4); transition: transform 0.15s ease; }
-    .humor-btn:hover { transform: translate(-2px,-2px); }
+
+    .humor-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .humor-text {
+      font-size: clamp(0.5rem, 2vw, 0.65rem);
+      line-height: 1.8;
+      color: #3d2b1f;
+      margin-bottom: 1.25rem;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+    }
+    .humor-btn {
+      min-height: 48px;
+      padding: 0.75rem 2rem;
+      background: #8b6b4a;
+      border: 3px solid #6b4f35;
+      color: #fef6e4;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: clamp(0.5rem, 2vw, 0.6rem);
+      cursor: pointer;
+      box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2);
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+    .humor-btn:hover { background: #a0784a; transform: translate(-2px,-2px); }
     .humor-btn:active { transform: translate(2px,2px); }
 
+    /* RESPONSIVE */
     @media (max-width: 480px) {
-      .mystery-block { width: 90px; height: 90px; font-size: 1.8rem; }
-      .mystery-block .block-dots::before, .mystery-block .block-dots::after { width: 6px; height: 6px; }
-      .mystery-block .block-dots::before { top: 10px; left: 10px; }
-      .mystery-block .block-dots::after { bottom: 10px; right: 10px; }
-      .modal-box { padding: 1.75rem 1.25rem 1.5rem; }
-      .option-btn { padding: 0.65rem 0.85rem; }
-      .result-box { padding: 1.75rem 1.25rem; }
-      .result-stats { gap: 1rem; }
+      .start-btn { width: 80px; height: 80px; font-size: 1.8rem; }
+      .modal-box { padding: 1.5rem 1rem 1.25rem; }
+      .option-btn { min-height: 48px; padding: 0.65rem 0.85rem; }
+      .option-letter { width: 30px; height: 30px; min-width: 30px; font-size: 0.6rem; }
+      .result-box { padding: 1.5rem 1rem; }
     }
-    @media (max-width: 360px) { .main-title { font-size: 1.1rem; } .sub-title { font-size: 0.55rem; } }
+    @media (max-width: 360px) {
+      .main-title { font-size: 1rem; }
+      .sub-title { font-size: 0.5rem; }
+    }
   </style>
 </head>
 <body>
 
+  <!-- Grass tufts decoration -->
+  <div class="grass-tuft" style="left:10%;"></div>
+  <div class="grass-tuft" style="left:25%;"></div>
+  <div class="grass-tuft" style="left:45%;"></div>
+  <div class="grass-tuft" style="left:65%;"></div>
+  <div class="grass-tuft" style="left:80%;"></div>
+  <div class="grass-tuft" style="left:92%;"></div>
+
   <!-- LANDING -->
   <div id="landing">
-    <h1 class="main-title">Gender Test</h1>
-    <p class="sub-title">性别测试</p>
-    <button class="mystery-block" id="start-btn" aria-label="开始测试">
-      <span class="block-dots"></span>
-      <span class="block-icon">?</span>
+    <div class="wooden-plaque">
+      <h1 class="main-title">Gender Test</h1>
+      <p class="sub-title">✦ 星露谷物语特别版 ✦</p>
+    </div>
+    <button class="start-btn" id="start-btn" aria-label="开始测试">
+      <span class="btn-leaf"></span>
+      <span class="btn-icon">?</span>
     </button>
-    <p class="btn-label">▼ 按我开始 ▼</p>
+    <p class="btn-label">▼ 点我种田 ▼</p>
   </div>
 
   <!-- QUIZ MODAL -->
@@ -184,39 +492,26 @@
   <!-- RESULT SCREEN -->
   <div id="result-screen">
     <div class="result-box">
-      <p class="result-badge">✦ 结果揭晓 ✦</p>
-      <div class="treasure-box-wrap" id="treasure-wrap">
-        <div class="treasure-glow" id="treasure-glow"></div>
-        <div class="treasure-lid" id="treasure-lid">◢</div>
-        <div class="treasure-box" id="treasure-box">?</div>
+      <div class="result-banner" id="result-banner">
+        恭喜你！经过 AI 深度分析，你的真实属性是：
+        <span class="gender-text" id="gender-text">【 加载中... 】</span>
       </div>
-      <h2 class="result-title" id="result-title">你的气质档案</h2>
-      <p class="result-subtitle" id="result-subtitle">Vibe Profile</p>
       <p class="result-description" id="result-description">正在分析你的选择...</p>
-      <div class="result-stats">
-        <div class="result-stat">
-          <div class="result-stat-value" id="stat-female">0%</div>
-          <div class="result-stat-label">女性气质</div>
-        </div>
-        <div class="result-stat">
-          <div class="result-stat-value" id="stat-male">0%</div>
-          <div class="result-stat-label">男性气质</div>
-        </div>
-      </div>
-      <button class="result-btn" id="result-humor-btn">💬 看看AI怎么说 →</button>
+      <button class="result-btn" id="result-humor-btn">💬 AI 坦白时间 →</button>
     </div>
   </div>
 
   <!-- HUMOR POPUP -->
   <div id="humor-popup">
     <div class="humor-box">
-      <div class="humor-icon">🤖</div>
+      <div class="humor-icon">🌾</div>
       <p class="humor-text" id="humor-text">
-        我猜对了吗？😏<br>
-        （如果不对，那我的AI大脑大概<br>
-        被你的有机化学课本烧坏了！）
+        嘿嘿，我猜得准吧？😏<br><br>
+        虽然我刚才假装在分析你"蹦迪的搅拌子"和"吵架的课本"，<br>
+        但其实我悄悄把 CPU 的算力全押在最后一题上了！<br><br>
+        （毕竟在像素世界里，只有直球才是最强的必杀技！你说对吗？）
       </p>
-      <button class="humor-btn" id="humor-close-btn">✓ 知道了</button>
+      <button class="humor-btn" id="humor-close-btn">✓ OK</button>
     </div>
   </div>
 
@@ -225,102 +520,92 @@
       // ===== QUESTION DATA =====
       var questions = [
         {
-          q: 'Q1: 你最爱的饮品是？',
+          q: 'Q1: 如果你必须变成一个化学仪器……',
           options: [
-            { label: 'A', text: '水果茶' },
-            { label: 'B', text: '奶茶' },
-            { label: 'C', text: '咖啡' },
-            { label: 'D', text: '白开水' }
-          ],
-          w: { A: { f: 3, m: 0 }, B: { f: 3, m: 0 }, C: { f: 0, m: 2 }, D: { f: 0, m: 3 } }
+            { label: 'A', text: '尖叫的冷凝管' },
+            { label: 'B', text: '逃跑的烧杯' },
+            { label: 'C', text: '蹦迪的搅拌子' },
+            { label: 'D', text: '洗不干净的量筒' }
+          ]
         },
         {
-          q: 'Q2: 聚餐首选？',
+          q: 'Q2: 课本和电池半夜吵架，你会？',
           options: [
-            { label: 'A', text: '中餐' },
-            { label: 'B', text: '火锅/烤肉' },
-            { label: 'C', text: '国际料理' },
-            { label: 'D', text: '便利店' }
-          ],
-          w: { A: { f: 1, m: 1 }, B: { f: 1, m: 2 }, C: { f: 2, m: 1 }, D: { f: 0, m: 3 } }
+            { label: 'A', text: '加入辩论' },
+            { label: 'B', text: '把电池关进冰箱' },
+            { label: 'C', text: '发给 AI 问 Bug' },
+            { label: 'D', text: '继续睡像素觉' }
+          ]
         },
         {
-          q: 'Q3: 暑假想去？',
+          q: 'Q3: 如果农场里长出了 WiFi 信号树，你会？',
           options: [
-            { label: 'A', text: '冰岛看极光' },
-            { label: 'B', text: '沙漠骑骆驼' },
-            { label: 'C', text: '海绵宝宝的海底' },
-            { label: 'D', text: '空调房躺平' }
-          ],
-          w: { A: { f: 2, m: 1 }, B: { f: 0, m: 3 }, C: { f: 3, m: 0 }, D: { f: 1, m: 2 } }
+            { label: 'A', text: '刷短视频' },
+            { label: 'B', text: '种更多树' },
+            { label: 'C', text: '叫邻居来蹭网' },
+            { label: 'D', text: '拔掉种菜' }
+          ]
         },
         {
-          q: 'Q4: 想要哪种超能力？',
+          q: 'Q4: 你的宠物鸡突然开始讲哲学，你？',
           options: [
-            { label: 'A', text: '和猫对话' },
-            { label: 'B', text: '瞬移马桶' },
-            { label: 'C', text: '喝不胖的奶茶' },
-            { label: 'D', text: '化学公式解码器' }
-          ],
-          w: { A: { f: 3, m: 0 }, B: { f: 0, m: 2 }, C: { f: 3, m: 0 }, D: { f: 0, m: 3 } }
+            { label: 'A', text: '录视频发网上' },
+            { label: 'B', text: '问它先有鸡还是先有蛋' },
+            { label: 'C', text: '让它下个金蛋' },
+            { label: 'D', text: '假装没听见' }
+          ]
         },
         {
-          q: 'Q5: 收到未来的信，你会？',
+          q: 'Q5: 星露谷节日选哪个项目？',
           options: [
-            { label: 'A', text: '打开看看' },
-            { label: 'B', text: '直接删掉' },
-            { label: 'C', text: '挂闲鱼卖掉' },
-            { label: 'D', text: '黑进去看更多' }
-          ],
-          w: { A: { f: 2, m: 1 }, B: { f: 0, m: 2 }, C: { f: 1, m: 1 }, D: { f: 0, m: 3 } }
+            { label: 'A', text: '吃饼大赛' },
+            { label: 'B', text: '钓鱼比赛' },
+            { label: 'C', text: '种南瓜展' },
+            { label: 'D', text: '在家睡觉' }
+          ]
         },
         {
-          q: 'Q6: 像素世界选房子？',
+          q: 'Q6: 如果矿洞里掉出的是奶茶，你？',
           options: [
-            { label: 'A', text: '天空树屋' },
-            { label: 'B', text: '熔岩洞穴' },
-            { label: 'C', text: '赛博巴士' },
-            { label: 'D', text: '药丸实验室' }
-          ],
-          w: { A: { f: 3, m: 0 }, B: { f: 0, m: 3 }, C: { f: 1, m: 2 }, D: { f: 0, m: 2 } }
+            { label: 'A', text: '开奶茶店' },
+            { label: 'B', text: '继续挖矿' },
+            { label: 'C', text: '研究配方' },
+            { label: 'D', text: '倒掉种地' }
+          ]
         },
         {
-          q: 'Q7: 看到流星许什么愿？',
+          q: 'Q7: 你的镰刀能割出表情包，你？',
           options: [
-            { label: 'A', text: '考试全过' },
-            { label: 'B', text: '一夜暴富' },
-            { label: 'C', text: '世界和平 + 涨工资' },
-            { label: 'D', text: '再来更多流星' }
-          ],
-          w: { A: { f: 2, m: 1 }, B: { f: 0, m: 2 }, C: { f: 2, m: 1 }, D: { f: 0, m: 3 } }
+            { label: 'A', text: '割满一仓库' },
+            { label: 'B', text: '开网店卖' },
+            { label: 'C', text: '送朋友' },
+            { label: 'D', text: '觉得太吵扔掉' }
+          ]
         },
         {
-          q: 'Q8: 遇到马里奥你会？',
+          q: 'Q8: 下雨天你会在农场做什么？',
           options: [
-            { label: 'A', text: '给他蘑菇' },
-            { label: 'B', text: '请他吃麻辣烫' },
-            { label: 'C', text: '教他Python' },
-            { label: 'D', text: '帮他找公主' }
-          ],
-          w: { A: { f: 2, m: 1 }, B: { f: 2, m: 1 }, C: { f: 0, m: 3 }, D: { f: 1, m: 2 } }
+            { label: 'A', text: '在家做饭' },
+            { label: 'B', text: '去矿洞探险' },
+            { label: 'C', text: '钓鱼发呆' },
+            { label: 'D', text: '继续种田' }
+          ]
         },
         {
-          q: 'Q9: 实验室选哪个装备？',
+          q: 'Q9: 如果小镇居民都是水果，你是？',
           options: [
-            { label: 'A', text: '烧杯' },
-            { label: 'B', text: '移液枪' },
-            { label: 'C', text: '离心机' },
-            { label: 'D', text: '本生灯' }
-          ],
-          w: { A: { f: 2, m: 1 }, B: { f: 2, m: 1 }, C: { f: 1, m: 2 }, D: { f: 0, m: 3 } }
+            { label: 'A', text: '草莓' },
+            { label: 'B', text: '榴莲' },
+            { label: 'C', text: '西瓜' },
+            { label: 'D', text: '牛油果' }
+          ]
         },
         {
           q: 'Q10: 你是：',
           options: [
-            { label: 'F', text: '♀ 女性' },
-            { label: 'M', text: '♂ 男性' }
-          ],
-          w: { F: { f: 3, m: 0 }, M: { f: 0, m: 3 } }
+            { label: 'A', text: '♀ 女性' },
+            { label: 'B', text: '♂ 男性' }
+          ]
         }
       ];
 
@@ -334,24 +619,16 @@
       var questionText = document.getElementById('modal-question-text');
       var optionsGrid = document.getElementById('options-grid');
       var resultScreen = document.getElementById('result-screen');
-      var treasureBox = document.getElementById('treasure-box');
-      var treasureLid = document.getElementById('treasure-lid');
-      var treasureGlow = document.getElementById('treasure-glow');
-      var resultTitle = document.getElementById('result-title');
-      var resultSubtitle = document.getElementById('result-subtitle');
+      var resultBanner = document.getElementById('result-banner');
+      var genderText = document.getElementById('gender-text');
       var resultDesc = document.getElementById('result-description');
-      var statFemale = document.getElementById('stat-female');
-      var statMale = document.getElementById('stat-male');
       var resultHumorBtn = document.getElementById('result-humor-btn');
       var humorPopup = document.getElementById('humor-popup');
-      var humorText = document.getElementById('humor-text');
       var humorCloseBtn = document.getElementById('humor-close-btn');
 
       // ===== STATE =====
-      var currentQ = 0;
-      var totalF = 0;
-      var totalM = 0;
       var isTransitioning = false;
+      var finalGender = '';
 
       // ===== HELPERS =====
       function shuffleArray(arr) {
@@ -363,7 +640,7 @@
       }
 
       function createPixelExplosion(x, y) {
-        var colors = ['#f0db4f', '#ff6b6b', '#4ecdc4', '#45b7d1', '#ff9ff3', '#feca57', '#ff6348', '#7bed9f'];
+        var colors = ['#f5d742', '#7ec850', '#f4976c', '#45b7d1', '#c49a6c', '#ff9ff3', '#6db840', '#d4a017'];
         for (var i = 0; i < 16; i++) {
           var p = document.createElement('div');
           p.className = 'pixel-particle';
@@ -381,18 +658,30 @@
         }
       }
 
-      // ===== RENDER QUESTION =====
+      // ===== SHOW RESULT (100% from Q10) =====
+      function showResult() {
+        quizModal.classList.remove('is-open');
+        setTimeout(function() {
+          // Anti-climax: result is 100% determined by Q10 only
+          // finalGender was set when Q10 was answered
+          var displayGender = finalGender === 'F' ? '♀ 女性' : '♂ 男性';
+          genderText.textContent = '【 ' + displayGender + ' 】';
+          resultDesc.textContent = 'AI 已忽略你前 9 题的 nonsense 答案，直接看最后一题得出结论 😏';
+          resultScreen.classList.add('is-open');
+        }, 400);
+      }
+
+      // ===== RENDER QUESTION (with Q10 gender capture) =====
       function renderQuestion(index) {
         var q = questions[index];
         if (!q) return;
         questionNumber.textContent = 'Q' + (index + 1) + ' / 10';
         questionText.textContent = q.q;
 
-        // Special styling for Q10
         if (index === 9) {
-          questionText.style.fontSize = 'clamp(0.8rem, 3vw, 1.2rem)';
-          questionText.style.color = '#f0db4f';
-          questionText.style.textShadow = '2px 2px 0 #5a4510, 0 0 20px rgba(240,219,79,0.3)';
+          questionText.style.fontSize = 'clamp(0.9rem, 4vw, 1.4rem)';
+          questionText.style.color = '#5a2d0c';
+          questionText.style.textShadow = '2px 2px 0 rgba(255,255,255,0.3), 0 0 20px rgba(245,215,66,0.3)';
           questionText.style.textAlign = 'center';
           questionText.style.padding = '0.5rem 0';
         } else {
@@ -413,19 +702,21 @@
           btn.addEventListener('click', function(e) {
             if (isTransitioning) return;
             isTransitioning = true;
-            // Explosion
             var rect = btn.getBoundingClientRect();
             createPixelExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
-            // Score
-            var w = q.w[opt.label];
-            if (w) { totalF += w.f; totalM += w.m; }
-            // Disable all options
             var allBtns = optionsGrid.querySelectorAll('.option-btn');
             for (var b = 0; b < allBtns.length; b++) { allBtns[b].classList.add('is-disabled'); }
-            // Advance
+
+            // For Q10, capture the gender
+            if (index === 9) {
+              finalGender = opt.label; // 'F' or 'M' (Q10 uses A/B but we map)
+              // Map A->F, B->M
+              if (opt.label === 'A') finalGender = 'F';
+              else if (opt.label === 'B') finalGender = 'M';
+            }
+
             setTimeout(function() {
               if (index + 1 < questions.length) {
-                // Slide out
                 questionSlide.classList.remove('is-active');
                 questionSlide.classList.add('is-exit-left');
                 setTimeout(function() {
@@ -434,62 +725,12 @@
                   setTimeout(function() { questionSlide.classList.add('is-active'); isTransitioning = false; }, 30);
                 }, 300);
               } else {
-                // Quiz done - show result
                 showResult();
               }
             }, 600);
           });
           optionsGrid.appendChild(btn);
         });
-      }
-
-      // ===== SHOW RESULT =====
-      function showResult() {
-        quizModal.classList.remove('is-open');
-        setTimeout(function() {
-          var total = totalF + totalM;
-          var pF = total > 0 ? Math.round((totalF / total) * 100) : 50;
-          var pM = total > 0 ? Math.round((totalM / total) * 100) : 50;
-          // Normalize to 100
-          if (pF + pM !== 100) {
-            if (pF > pM) pF = 100 - pM;
-            else pM = 100 - pF;
-          }
-
-          var profile = '';
-          var desc = '';
-          if (pF >= 70) {
-            profile = '🌸 软萌甜妹';
-            desc = '你的灵魂里住着一位穿着粉色连衣裙、在花园里喝下午茶的小公主。温柔、细腻、感性——你是那种会让世界变得更柔软的人。';
-          } else if (pF >= 50) {
-            profile = '🌿 知性姐姐';
-            desc = '你兼具感性与理性，像一杯恰到好处的抹茶拿铁——既有温柔的甜，也有清醒的苦。你的气质里藏着一种让人安心的力量。';
-          } else if (pM >= 70) {
-            profile = '🔥 硬核大佬';
-            desc = '你的气场全开，像一台精密运转的超级计算机。理性、果断、不拘小节——你是那种能把实验室变成战场的人。';
-          } else if (pM >= 50) {
-            profile = '⚡ 潇洒酷盖';
-            desc = '你随性又自信，像一阵来去自由的风。不喜欢被定义，但你的每一个选择都在说：我就是我，不一样的烟火。';
-          } else {
-            profile = '🌀 混沌哲学家';
-            desc = '你超越了二元对立的框架，活在自己的维度里。你的气质无法被简单归类——而这恰恰是你最迷人的地方。';
-          }
-
-          resultTitle.textContent = profile;
-          resultSubtitle.textContent = 'Vibe Profile';
-          resultDesc.textContent = desc;
-          statFemale.textContent = pF + '%';
-          statMale.textContent = pM + '%';
-
-          resultScreen.classList.add('is-open');
-          // Auto-open treasure box after a beat
-          setTimeout(function() {
-            treasureBox.classList.add('is-open');
-            treasureLid.classList.add('is-open');
-            treasureGlow.classList.add('is-open');
-            treasureBox.textContent = '★';
-          }, 500);
-        }, 400);
       }
 
       // ===== HUMOR POPUP =====
@@ -507,7 +748,8 @@
       startBtn.addEventListener('click', function() {
         landing.classList.add('is-hidden');
         setTimeout(function() {
-          currentQ = 0; totalF = 0; totalM = 0; isTransitioning = false;
+          isTransitioning = false;
+          finalGender = '';
           renderQuestion(0);
           questionSlide.classList.add('is-active');
           quizModal.classList.add('is-open');
