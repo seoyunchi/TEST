@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>性别测试 - Stardew Valley 版</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      background: #d4e9f7;
+      color: #3d2b1f;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; min-height: 100dvh;
+      position: relative; image-rendering: pixelated;
+    }
+    /* Sky background with clouds */
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.5) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.4) 0%, transparent 35%),
+        radial-gradient(circle at 50% 60%, rgba(255,255,255,0.3) 0%, transparent 50%),
+        linear-gradient(180deg, #b8dff5 0%, #d4e9f7 40%, #e8f4e8 100%);
+    }
+    /* Grass at bottom */
+    body::after {
+      content: ''; position: fixed; bottom: 0; left: 0; right: 0; z-index: 0; pointer-events: none;
+      height: 18vh;
+      background:
+        repeating-linear-gradient(90deg,
+          #7ec850 0px, #7ec850 16px,
+          #6db840 16px, #6db840 32px);
+      box-shadow: 0 -4px 0 #5a9a30;
+    }
+    /* Grass tufts */
+    .grass-tuft {
+      position: fixed; bottom: 18vh; z-index: 0; pointer-events: none;
+      width: 8px; height: 12px; background: #6db840;
+      box-shadow: 2px -4px 0 #7ec850, -2px -2px 0 #5a9a30;
+    }
+
+    /* LANDING */
+    #landing {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 2rem 1.5rem;
+      opacity: 1; transform: scale(1);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      width: 100%; max-width: 400px !important;
+    }
+    #landing.is-hidden { opacity: 0; transform: scale(0.8); pointer-events: none; }
+
+    /* WOODEN PLAQUE */
+    .wooden-plaque {
+      background: #c49a6c;
+      border: 4px solid #8b6b4a;
+      box-shadow:
+        6px 6px 0 0 rgba(0,0,0,0.2),
+        inset 2px 2px 0 0 rgba(255,255,255,0.2),
+        inset -2px -2px 0 0 rgba(0,0,0,0.15);
+      padding: 2rem 1.5rem;
+      position: relative;
+      width: 90% !important;
+      max-width: 400px !important;
+    }
+    .wooden-plaque::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #6b4f35, -3px 0 0 0 #6b4f35,
+        0 3px 0 0 #6b4f35, 0 -3px 0 0 #6b4f35;
+      pointer-events: none;
+    }
+    /* Wood grain lines */
+    .wooden-plaque::after {
+      content: ''; position: absolute; inset: 8px; z-index: -1; pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg,
+          transparent 0px, transparent 20px,
+          rgba(139,107,74,0.15) 20px, rgba(139,107,74,0.15) 22px,
+          transparent 22px, transparent 40px);
+    }
+
+    .main-title {
+      font-size: 2.5rem !important;
+      color: #fef6e4;
+      text-shadow:
+        3px 3px 0 #6b4f35,
+        -1px -1px 0 #6b4f35,
+        1px -1px 0 #6b4f35,
+        -1px 1px 0 #6b4f35,
+        0 0 20px rgba(255,215,0,0.3);
+      margin-bottom: 20px !important; line-height: 1.4;
+      animation: titleGlow 3s ease-in-out infinite;
+    }
+    @keyframes titleGlow {
+      0%,100% { text-shadow: 3px 3px 0 #6b4f35, 0 0 20px rgba(255,215,0,0.3); }
+      50% { text-shadow: 3px 3px 0 #6b4f35, 0 0 40px rgba(255,215,0,0.6); }
+    }
+    .sub-title {
+      font-size: 1.5rem !important;
+      color: #fef6e4;
+      text-shadow: 2px 2px 0 #6b4f35;
+      margin-bottom: 20px !important; line-height: 1.6;
+    }
+
+    /* STARDEW START BUTTON - Junimo style */
+    .start-btn {
+      position: relative; display: inline-flex; align-items: center; justify-content: center;
+      width: 100px; height: 100px;
+      background: #f5d742; border: none; cursor: pointer;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: 2.2rem; color: #7a6214;
+      text-shadow: 1px 1px 0 #fff3a0;
+      box-shadow:
+        4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914,
+        0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914,
+        2px 2px 0 0 rgba(255,255,255,0.3) inset,
+        -2px -2px 0 0 rgba(0,0,0,0.15) inset,
+        6px 6px 0 0 rgba(0,0,0,0.25);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      animation: junimoBounce 2.5s ease-in-out infinite;
+      user-select: none; -webkit-tap-highlight-color: transparent;
+      border-radius: 8px;
+    }
+    .start-btn::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #5a4510, -3px 0 0 0 #5a4510,
+        0 3px 0 0 #5a4510, 0 -3px 0 0 #5a4510;
+      pointer-events: none;
+      border-radius: 12px;
+    }
+    .start-btn .btn-icon { position: relative; z-index: 1; line-height: 1; }
+    /* Little leaf on top like a Junimo */
+    .start-btn .btn-leaf {
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 12px; height: 10px; background: #6db840;
+      box-shadow: 1px 1px 0 0 #4a7a28;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      z-index: 2;
+    }
+    @keyframes junimoBounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .start-btn:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow:
+        4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914,
+        0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914,
+        2px 2px 0 0 rgba(255,255,255,0.4) inset,
+        -2px -2px 0 0 rgba(0,0,0,0.15) inset,
+        6px 6px 0 0 rgba(0,0,0,0.25),
+        0 0 30px rgba(245,215,66,0.5);
+      animation: junimoHover 0.4s ease infinite;
+    }
+    @keyframes junimoHover {
+      0%,100% { transform: translateY(-6px) scale(1.05); }
+      50% { transform: translateY(-10px) scale(1.05); }
+    }
+    .start-btn:active {
+      transform: translateY(4px) scale(0.95);
+      box-shadow:
+        4px 0 0 0 #8b6914, -4px 0 0 0 #8b6914,
+        0 4px 0 0 #8b6914, 0 -4px 0 0 #8b6914,
+        2px 2px 0 0 rgba(0,0,0,0.2) inset,
+        -2px -2px 0 0 rgba(255,255,255,0.1) inset,
+        3px 3px 0 0 rgba(0,0,0,0.25);
+      animation: none;
+    }
+    .btn-label {
+      margin-top: 1.2rem;
+      font-size: 1.5rem !important;
+      color: #5a7a4a;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+      letter-spacing: 0.1em;
+      animation: labelBlink 2s step-end infinite;
+    }
+    @keyframes labelBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* QUIZ MODAL */
+    #quiz-modal {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      background: rgba(60,40,20,0.85);
+      backdrop-filter: blur(3px);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    #quiz-modal.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
+
+    .modal-box {
+      position: relative;
+      width: 90% !important;
+      max-width: 400px !important;
+      padding: 2rem 1.5rem 1.5rem;
+      background: #c49a6c;
+      border: 4px solid #8b6b4a;
+      box-shadow:
+        8px 8px 0 0 rgba(0,0,0,0.25),
+        inset 2px 2px 0 0 rgba(255,255,255,0.2),
+        inset -2px -2px 0 0 rgba(0,0,0,0.15);
+      transform: scale(0.85) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
+      opacity: 0;
+    }
+    .modal-box::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #6b4f35, -3px 0 0 0 #6b4f35,
+        0 3px 0 0 #6b4f35, 0 -3px 0 0 #6b4f35;
+      pointer-events: none; z-index: 5;
+    }
+    #quiz-modal.is-open .modal-box { transform: scale(1) translateY(0); opacity: 1; }
+
+    .modal-close {
+      position: absolute; top: 10px; right: 10px; z-index: 10;
+      width: 40px; height: 40px;
+      background: #a0784a; border: 3px solid #8b6b4a;
+      color: #fef6e4;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      box-shadow: 3px 3px 0 0 rgba(0,0,0,0.2);
+      line-height: 1;
+    }
+    .modal-close:hover { background: #8b6b4a; border-color: #f5d742; color: #f5d742; }
+    .modal-close:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 0 rgba(0,0,0,0.2); }
+
+    /* QUESTION SLIDE */
+    .question-slide { opacity: 0; transform: translateX(40px); transition: opacity 0.35s ease, transform 0.35s ease; }
+    .question-slide.is-active { opacity: 1; transform: translateX(0); }
+    .question-slide.is-exit-left { opacity: 0; transform: translateX(-40px); }
+
+    .modal-question-number {
+      font-size: 1.5rem !important;
+      color: #f5d742;
+      margin-bottom: 0.75rem;
+      text-shadow: 1px 1px 0 #6b4f35;
+    }
+    .modal-question-text {
+      font-size: 1.5rem !important;
+      line-height: 1.8;
+      color: #3d2b1f;
+      margin-bottom: 1.25rem;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+      min-height: 2.5em;
+    }
+
+    /* OPTIONS - Mobile friendly large touch targets */
+    .options-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+    .option-btn {
+      display: flex; align-items: center; gap: 0.75rem;
+      width: 100%;
+      min-height: 52px;
+      padding: 15px 20px !important;
+      background: #f5e8d0;
+      border: 3px solid #b8956a;
+      color: #3d2b1f;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: 18px !important;
+      cursor: pointer; text-align: left;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+      box-shadow: 4px 4px 0 0 rgba(0,0,0,0.15);
+      line-height: 1.5;
+      position: relative; overflow: hidden;
+    }
+    .option-btn:hover { background: #fef6e4; border-color: #f5d742; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 rgba(0,0,0,0.15); }
+    .option-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 0 rgba(0,0,0,0.15); }
+    .option-btn.is-disabled { pointer-events: none; opacity: 0.5; }
+
+    .option-letter {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; min-width: 34px;
+      background: #b8956a;
+      border: 2px solid #8b6b4a;
+      color: #fef6e4;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      box-shadow: 2px 2px 0 0 rgba(0,0,0,0.15);
+    }
+    .option-btn:hover .option-letter { background: #f5d742; border-color: #8b6914; color: #5a4510; }
+
+    /* PIXEL EXPLOSION - Stardew colors */
+    .pixel-particle {
+      position: fixed; z-index: 200; pointer-events: none;
+      width: 8px; height: 8px; image-rendering: pixelated;
+      animation: particleFly 0.7s ease-out forwards;
+    }
+    @keyframes particleFly {
+      0% { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+    }
+
+    /* RESULT SCREEN */
+    #result-screen {
+      position: fixed; inset: 0; z-index: 150;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 1rem;
+      background: rgba(60,40,20,0.95);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #result-screen.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
+
+    .result-box {
+      width: 90% !important;
+      max-width: 400px !important;
+      padding: 2rem 1.5rem 1.5rem;
+      background: #c49a6c;
+      border: 4px solid #f5d742;
+      box-shadow:
+        8px 8px 0 0 rgba(0,0,0,0.25),
+        0 0 40px rgba(245,215,66,0.2);
+      text-align: center;
+      transform: scale(0.8);
+      transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+    }
+    .result-box::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #6b4f35, -3px 0 0 0 #6b4f35,
+        0 3px 0 0 #6b4f35, 0 -3px 0 0 #6b4f35;
+      pointer-events: none;
+    }
+    #result-screen.is-open .result-box { transform: scale(1); }
+
+    /* GOLDEN PIXEL BANNER */
+    .result-banner {
+      display: inline-block;
+      padding: 0.6rem 1rem;
+      background: linear-gradient(135deg, #f5d742, #d4a017, #f5d742);
+      border: 3px solid #8b6914;
+      box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2);
+      font-size: 1.5rem !important;
+      color: #3d2b1f;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+      animation: bannerGlow 2s ease-in-out infinite;
+    }
+    @keyframes bannerGlow {
+      0%,100% { box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2), 0 0 20px rgba(245,215,66,0.3); }
+      50% { box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2), 0 0 40px rgba(245,215,66,0.6); }
+    }
+    .result-banner .gender-text {
+      color: #5a2d0c;
+      font-size: 1.8rem !important;
+      display: block;
+      margin-top: 0.3rem;
+    }
+
+    .result-description {
+      font-size: 1.5rem !important;
+      color: #3d2b1f;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .result-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      min-height: 48px;
+      padding: 0.75rem 1.5rem;
+      background: #f5d742;
+      border: 3px solid #8b6914;
+      color: #3d2b1f;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: 1.5rem !important;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .result-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 rgba(0,0,0,0.2); }
+    .result-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 0 rgba(0,0,0,0.2); }
+
+    /* HUMOR POPUP */
+    #humor-popup {
+      position: fixed; inset: 0; z-index: 250;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      background: rgba(40,25,10,0.9);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    #humor-popup.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
+
+    .humor-box {
+      width: 90% !important;
+      max-width: 400px !important;
+      padding: 2rem 1.5rem;
+      background: #c49a6c;
+      border: 4px solid #8b6b4a;
+      box-shadow: 8px 8px 0 0 rgba(0,0,0,0.25);
+      text-align: center;
+      transform: scale(0.8);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+    }
+    .humor-box::before {
+      content: ''; position: absolute; inset: -8px;
+      background: transparent;
+      box-shadow:
+        3px 0 0 0 #6b4f35, -3px 0 0 0 #6b4f35,
+        0 3px 0 0 #6b4f35, 0 -3px 0 0 #6b4f35;
+      pointer-events: none;
+    }
+    #humor-popup.is-open .humor-box { transform: scale(1); }
+
+    .humor-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .humor-text {
+      font-size: 1.5rem !important;
+      line-height: 1.8;
+      color: #3d2b1f;
+      margin-bottom: 1.25rem;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+    }
+    .humor-btn {
+      min-height: 48px;
+      padding: 0.75rem 2rem;
+      background: #8b6b4a;
+      border: 3px solid #6b4f35;
+      color: #fef6e4;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: 1.5rem !important;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 0 rgba(0,0,0,0.2);
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+    .humor-btn:hover { background: #a0784a; transform: translate(-2px,-2px); }
+    .humor-btn:active { transform: translate(2px,2px); }
+
+    /* RESPONSIVE */
+    @media (max-width: 480px) {
+      .start-btn { width: 80px; height: 80px; font-size: 1.8rem; }
+      .modal-box { padding: 1.5rem 1rem 1.25rem; }
+      .option-btn { min-height: 48px; padding: 12px 16px !important; }
+      .option-letter { width: 30px; height: 30px; min-width: 30px; font-size: 0.6rem; }
+      .result-box { padding: 1.5rem 1rem; }
+      .main-title { font-size: 2rem !important; }
+      .sub-title { font-size: 1.2rem !important; }
+      .modal-question-text { font-size: 1.2rem !important; }
+      .modal-question-number { font-size: 1.2rem !important; }
+      .option-btn { font-size: 15px !important; }
+      .result-banner { font-size: 1.2rem !important; }
+      .result-description { font-size: 1.2rem !important; }
+      .result-btn { font-size: 1.2rem !important; }
+      .humor-text { font-size: 1.2rem !important; }
+      .humor-btn { font-size: 1.2rem !important; }
+      .btn-label { font-size: 1.2rem !important; }
+      .result-banner .gender-text { font-size: 1.4rem !important; }
+    }
+    @media (max-width: 360px) {
+      .main-title { font-size: 1.6rem !important; }
+      .sub-title { font-size: 1rem !important; }
+      .modal-question-text { font-size: 1rem !important; }
+      .option-btn { font-size: 13px !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Grass tufts decoration -->
+  <div class="grass-tuft" style="left:10%;"></div>
+  <div class="grass-tuft" style="left:25%;"></div>
+  <div class="grass-tuft" style="left:45%;"></div>
+  <div class="grass-tuft" style="left:65%;"></div>
+  <div class="grass-tuft" style="left:80%;"></div>
+  <div class="grass-tuft" style="left:92%;"></div>
+
+  <!-- LANDING -->
+  <div id="landing">
+    <div class="wooden-plaque">
+      <h1 class="main-title">Gender Test</h1>
+      <p class="sub-title">✦ 星露谷物语特别版 ✦</p>
+    </div>
+    <button class="start-btn" id="start-btn" aria-label="开始测试">
+      <span class="btn-leaf"></span>
+      <span class="btn-icon">?</span>
+    </button>
+    <p class="btn-label">▼ 点我种田 ▼</p>
+  </div>
+
+  <!-- QUIZ MODAL -->
+  <div id="quiz-modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <button class="modal-close" id="modal-close" aria-label="关闭">✕</button>
+      <div id="question-container">
+        <div class="question-slide is-active" id="question-slide">
+          <p class="modal-question-number" id="modal-question-number">Q1 / 10</p>
+          <p class="modal-question-text" id="modal-question-text">加载中...</p>
+          <div class="options-grid" id="options-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen">
+    <div class="result-box">
+      <div class="result-banner" id="result-banner">
+        恭喜你！经过 AI 深度分析，你的真实属性是：
+        <span class="gender-text" id="gender-text">【 加载中... 】</span>
+      </div>
+      <p class="result-description" id="result-description">正在分析你的选择...</p>
+      <button class="result-btn" id="result-humor-btn">💬 AI 坦白时间 →</button>
+    </div>
+  </div>
+
+  <!-- HUMOR POPUP -->
+  <div id="humor-popup">
+    <div class="humor-box">
+      <div class="humor-icon">🌾</div>
+      <p class="humor-text" id="humor-text">
+        嘿嘿，我猜得准吧？😏<br><br>
+        虽然我刚才假装在分析你"蹦迪的搅拌子"和"吵架的课本"，<br>
+        但其实我悄悄把 CPU 的算力全押在最后一题上了！<br><br>
+        （毕竟在像素世界里，只有直球才是最强的必杀技！你说对吗？）
+      </p>
+      <button class="humor-btn" id="humor-close-btn">✓ OK</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // ===== QUESTION DATA =====
+      var questions = [
+        {
+          q: 'Q1: 如果你必须变成一个化学仪器……',
+          options: [
+            { label: 'A', text: '尖叫的冷凝管' },
+            { label: 'B', text: '逃跑的烧杯' },
+            { label: 'C', text: '蹦迪的搅拌子' },
+            { label: 'D', text: '洗不干净的量筒' }
+          ]
+        },
+        {
+          q: 'Q2: 课本和电池半夜吵架，你会？',
+          options: [
+            { label: 'A', text: '加入辩论' },
+            { label: 'B', text: '把电池关进冰箱' },
+            { label: 'C', text: '发给 AI 问 Bug' },
+            { label: 'D', text: '继续睡像素觉' }
+          ]
+        },
+        {
+          q: 'Q3: 如果农场里长出了 WiFi 信号树，你会？',
+          options: [
+            { label: 'A', text: '刷短视频' },
+            { label: 'B', text: '种更多树' },
+            { label: 'C', text: '叫邻居来蹭网' },
+            { label: 'D', text: '拔掉种菜' }
+          ]
+        },
+        {
+          q: 'Q4: 你的宠物鸡突然开始讲哲学，你？',
+          options: [
+            { label: 'A', text: '录视频发网上' },
+            { label: 'B', text: '问它先有鸡还是先有蛋' },
+            { label: 'C', text: '让它下个金蛋' },
+            { label: 'D', text: '假装没听见' }
+          ]
+        },
+        {
+          q: 'Q5: 星露谷节日选哪个项目？',
+          options: [
+            { label: 'A', text: '吃饼大赛' },
+            { label: 'B', text: '钓鱼比赛' },
+            { label: 'C', text: '种南瓜展' },
+            { label: 'D', text: '在家睡觉' }
+          ]
+        },
+        {
+          q: 'Q6: 如果矿洞里掉出的是奶茶，你？',
+          options: [
+            { label: 'A', text: '开奶茶店' },
+            { label: 'B', text: '继续挖矿' },
+            { label: 'C', text: '研究配方' },
+            { label: 'D', text: '倒掉种地' }
+          ]
+        },
+        {
+          q: 'Q7: 你的镰刀能割出表情包，你？',
+          options: [
+            { label: 'A', text: '割满一仓库' },
+            { label: 'B', text: '开网店卖' },
+            { label: 'C', text: '送朋友' },
+            { label: 'D', text: '觉得太吵扔掉' }
+          ]
+        },
+        {
+          q: 'Q8: 下雨天你会在农场做什么？',
+          options: [
+            { label: 'A', text: '在家做饭' },
+            { label: 'B', text: '去矿洞探险' },
+            { label: 'C', text: '钓鱼发呆' },
+            { label: 'D', text: '继续种田' }
+          ]
+        },
+        {
+          q: 'Q9: 如果小镇居民都是水果，你是？',
+          options: [
+            { label: 'A', text: '草莓' },
+            { label: 'B', text: '榴莲' },
+            { label: 'C', text: '西瓜' },
+            { label: 'D', text: '牛油果' }
+          ]
+        },
+        {
+          q: 'Q10: 你是：',
+          options: [
+            { label: 'A', text: '♀ 女性' },
+            { label: 'B', text: '♂ 男性' }
+          ]
+        }
+      ];
+
+      // ===== DOM REFS =====
+      var landing = document.getElementById('landing');
+      var startBtn = document.getElementById('start-btn');
+      var quizModal = document.getElementById('quiz-modal');
+      var modalClose = document.getElementById('modal-close');
+      var questionSlide = document.getElementById('question-slide');
+      var questionNumber = document.getElementById('modal-question-number');
+      var questionText = document.getElementById('modal-question-text');
+      var optionsGrid = document.getElementById('options-grid');
+      var resultScreen = document.getElementById('result-screen');
+      var resultBanner = document.getElementById('result-banner');
+      var genderText = document.getElementById('gender-text');
+      var resultDesc = document.getElementById('result-description');
+      var resultHumorBtn = document.getElementById('result-humor-btn');
+      var humorPopup = document.getElementById('humor-popup');
+      var humorCloseBtn = document.getElementById('humor-close-btn');
+
+      // ===== STATE =====
+      var isTransitioning = false;
+      var finalGender = '';
+
+      // ===== HELPERS =====
+      function shuffleArray(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+        }
+        return arr;
+      }
+
+      function createPixelExplosion(x, y) {
+        var colors = ['#f5d742', '#7ec850', '#f4976c', '#45b7d1', '#c49a6c', '#ff9ff3', '#6db840', '#d4a017'];
+        for (var i = 0; i < 16; i++) {
+          var p = document.createElement('div');
+          p.className = 'pixel-particle';
+          var angle = (Math.PI * 2 / 16) * i + (Math.random() - 0.5) * 0.5;
+          var dist = 60 + Math.random() * 80;
+          p.style.left = (x - 4) + 'px';
+          p.style.top = (y - 4) + 'px';
+          p.style.background = colors[Math.floor(Math.random() * colors.length)];
+          p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+          p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+          p.style.width = (6 + Math.random() * 6) + 'px';
+          p.style.height = p.style.width;
+          document.body.appendChild(p);
+          setTimeout(function(el) { el.remove(); }, 800, p);
+        }
+      }
+
+      // ===== SHOW RESULT (100% from Q10) =====
+      function showResult() {
+        quizModal.classList.remove('is-open');
+        setTimeout(function() {
+          // Anti-climax: result is 100% determined by Q10 only
+          // finalGender was set when Q10 was answered
+          var displayGender = finalGender === 'F' ? '♀ 女性' : '♂ 男性';
+          genderText.textContent = '【 ' + displayGender + ' 】';
+          resultDesc.textContent = 'AI 已忽略你前 9 题的 nonsense 答案，直接看最后一题得出结论 😏';
+          resultScreen.classList.add('is-open');
+        }, 400);
+      }
+
+      // ===== RENDER QUESTION (with Q10 gender capture) =====
+      function renderQuestion(index) {
+        var q = questions[index];
+        if (!q) return;
+        questionNumber.textContent = 'Q' + (index + 1) + ' / 10';
+        questionText.textContent = q.q;
+
+        if (index === 9) {
+          questionText.style.fontSize = 'clamp(0.9rem, 4vw, 1.4rem)';
+          questionText.style.color = '#5a2d0c';
+          questionText.style.textShadow = '2px 2px 0 rgba(255,255,255,0.3), 0 0 20px rgba(245,215,66,0.3)';
+          questionText.style.textAlign = 'center';
+          questionText.style.padding = '0.5rem 0';
+        } else {
+          questionText.style.fontSize = '';
+          questionText.style.color = '';
+          questionText.style.textShadow = '';
+          questionText.style.textAlign = '';
+          questionText.style.padding = '';
+        }
+
+        optionsGrid.innerHTML = '';
+        var shuffled = shuffleArray(q.options.slice());
+        shuffled.forEach(function(opt) {
+          var btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.dataset.label = opt.label;
+          btn.innerHTML = '<span class="option-letter">' + opt.label + '</span><span>' + opt.text + '</span>';
+          btn.addEventListener('click', function(e) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            var rect = btn.getBoundingClientRect();
+            createPixelExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            var allBtns = optionsGrid.querySelectorAll('.option-btn');
+            for (var b = 0; b < allBtns.length; b++) { allBtns[b].classList.add('is-disabled'); }
+
+            // For Q10, capture the gender
+            if (index === 9) {
+              finalGender = opt.label; // 'F' or 'M' (Q10 uses A/B but we map)
+              // Map A->F, B->M
+              if (opt.label === 'A') finalGender = 'F';
+              else if (opt.label === 'B') finalGender = 'M';
+            }
+
+            setTimeout(function() {
+              if (index + 1 < questions.length) {
+                questionSlide.classList.remove('is-active');
+                questionSlide.classList.add('is-exit-left');
+                setTimeout(function() {
+                  renderQuestion(index + 1);
+                  questionSlide.classList.remove('is-exit-left');
+                  setTimeout(function() { questionSlide.classList.add('is-active'); isTransitioning = false; }, 30);
+                }, 300);
+              } else {
+                showResult();
+              }
+            }, 600);
+          });
+          optionsGrid.appendChild(btn);
+        });
+      }
+
+      // ===== HUMOR POPUP =====
+      resultHumorBtn.addEventListener('click', function() {
+        humorPopup.classList.add('is-open');
+      });
+      humorCloseBtn.addEventListener('click', function() {
+        humorPopup.classList.remove('is-open');
+      });
+      humorPopup.addEventListener('click', function(e) {
+        if (e.target === humorPopup) humorPopup.classList.remove('is-open');
+      });
+
+      // ===== START QUIZ =====
+      startBtn.addEventListener('click', function() {
+        landing.classList.add('is-hidden');
+        setTimeout(function() {
+          isTransitioning = false;
+          finalGender = '';
+          renderQuestion(0);
+          questionSlide.classList.add('is-active');
+          quizModal.classList.add('is-open');
+        }, 500);
+      });
+
+      // ===== CLOSE MODAL =====
+      modalClose.addEventListener('click', function() {
+        quizModal.classList.remove('is-open');
+        landing.classList.remove('is-hidden');
+      });
+      quizModal.addEventListener('click', function(e) {
+        if (e.target === quizModal) {
+          quizModal.classList.remove('is-open');
+          landing.classList.remove('is-hidden');
+        }
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          if (humorPopup.classList.contains('is-open')) {
+            humorPopup.classList.remove('is-open');
+          } else if (resultScreen.classList.contains('is-open')) {
+            resultScreen.classList.remove('is-open');
+            landing.classList.remove('is-hidden');
+          } else if (quizModal.classList.contains('is-open')) {
+            quizModal.classList.remove('is-open');
+            landing.classList.remove('is-hidden');
+          }
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
